@@ -5,15 +5,20 @@ let frames;
 let light_size;
 let tree_scale;
 
-let origin_x;
-let origin_y;
-let origin_z;
 let rand;
 let rgb;
-let speed;
+
 let message;
+
+let speed;
 let coloured;
 let repeat;
+let twinkle;
+let save_file;
+
+let offsets;
+let offsets_color;
+let previous_bits;
 
 let exported;
 
@@ -32,9 +37,14 @@ function setup() {
   
   rand = color(255, 255, 255);
   rgb = color(0, 0, 0);
+  previous_bit = 0;
+  
+  // these control the final pattern
   speed = 0.1;
   coloured = true;
-  repeat = false;
+  repeat = true;
+  twinkle = true;
+  save_file = true;
   
   let a = [0, 1, 0, 1, 1, 1, 0]; // .-
   let e = [0, 1, 0]; // .
@@ -65,10 +75,22 @@ function setup() {
   // add headers
   colors.addColumn("FRAME_ID");
   
+  offsets = [];
+  offsets_color = [];
+  previous_bits = [];
+  
   for (let i = 0; i < positions.getRowCount(); i++) {
     colors.addColumn("R_" + nf(i));
     colors.addColumn("G_" + nf(i));
     colors.addColumn("B_" + nf(i));
+    
+    offsets.push(int(random(i)));
+    
+    offsets_color.push(color(int(random(i)) % 255,
+                             int(random(i)) % 255,
+                             int(random(i)) % 255));
+    
+    previous_bits.push(0);
   }
 
   frames = int(message.length / speed);
@@ -90,14 +112,8 @@ function draw() {
   
   f = frameCount - 1;
   let anim = floor(f * speed);
-  
-  if ((f * speed) == anim && coloured)
-    rand = color(int(random(255)), int(random(255)), int(random(255)));
-  
+    
   let index = repeat ? anim % message.length : anim;
-  bit = message[index];
-  
-  rgb = color(red(rand) * bit, green(rand) * bit, blue(rand) * bit);
   
   for (let i = 0; i < positions.getRowCount(); i++) {
 
@@ -105,6 +121,23 @@ function draw() {
     x = positions.getNum(i, 0);
     y = -positions.getNum(i, 2);
     z = positions.getNum(i, 1);
+    
+    if (twinkle) {
+      index += offsets[i];
+      index = index % message.length;
+      rand = offsets_color[i];
+    }
+    
+    bit = message[index];
+    
+    if (bit == 1 && previous_bits[i] == 0 && coloured)
+      rand = color(int(random(255)), int(random(255)), int(random(255)));
+    
+    previous_bits[i] = bit;
+    
+    rgb = color(red(rand) * bit,
+                green(rand) * bit,
+                blue(rand) * bit);
     
     j = i * 3;
     if (f < colors.getRowCount() && !exported) { 
@@ -122,8 +155,10 @@ function draw() {
   }
   
   if (f == colors.getRowCount() && !exported) {
+      if (save_file) {
         print("exporting " + nf(frames));
-        saveTable(colors, "morse-xmas-random.csv", "csv");
-        exported = true;
+        saveTable(colors, "morse-xmas-twinkle.csv", "csv");
+      }
+      exported = true;
     }
 }
