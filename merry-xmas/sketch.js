@@ -7,6 +7,7 @@ let tree_scale;
 
 let rand;
 let rgb;
+let changed;
 
 let message;
 
@@ -38,12 +39,13 @@ function setup() {
   rand = color(255, 255, 255);
   rgb = color(0, 0, 0);
   previous_bit = 0;
+  changed = false;
   
   // these control the final pattern
   speed = 0.1;
   coloured = true;
-  repeat = true;
-  twinkle = true;
+  repeat = false;
+  twinkle = false;
   save_file = true;
   
   let a = [0, 1, 0, 1, 1, 1, 0]; // .-
@@ -130,8 +132,13 @@ function draw() {
     
     bit = message[index];
     
-    if (bit == 1 && previous_bits[i] == 0 && coloured)
+    if (previous_bits[i] == 1)
+      changed = false;
+    
+    if (previous_bits[i] == 0 && coloured && !changed) {
       rand = color(int(random(255)), int(random(255)), int(random(255)));
+      changed = true;
+    }
     
     previous_bits[i] = bit;
     
@@ -157,7 +164,7 @@ function draw() {
   if (f == colors.getRowCount() && !exported) {
       if (save_file) {
         print("exporting " + nf(frames));
-        saveTable(colors, "morse-xmas-twinkle.csv", "csv");
+        saveTable(colors, "morse-xmas-random.csv", "csv");
       }
       exported = true;
     }
