@@ -45,7 +45,7 @@ function setup() {
     colors.addColumn("B_" + nf(i));
   }
 
-  frames = 500;
+  frames = 360;
   
   for (let j = 0; j < frames; j++) {
     colors.addRow();
@@ -70,7 +70,7 @@ function draw() {
     y = -positions.getNum(i, 2);
     z = positions.getNum(i, 1);
 
-    radius = dist(origin_x, origin_y, origin_z,
+    radius = 360.0 -dist(origin_x, origin_y, origin_z,
                   x, y, z);
     
     radius += 0.01 * frameCount;

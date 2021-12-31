@@ -44,8 +44,8 @@ function setup() {
     colors.addColumn("B_" + nf(i));
   }
 
-  preroll = 1000;
-  frames = 1000;
+  preroll = 720;
+  frames = 360;
   
   for (let j = 0; j < frames; j++) {
     colors.addRow();
